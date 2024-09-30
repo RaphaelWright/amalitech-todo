@@ -6,11 +6,16 @@ import { Link } from 'react-router-dom'
 const Todolist = () => {
 
     const [todos, setTodos] = useState([])
-    const [completed, setCompleted] = useState(false)
+    // const [completed, setCompleted] = useState(false)
 
-    const handleComplete = () => {
-        setCompleted(!completed)
-    }
+    // const handleComplete = () => {
+    //     setCompleted(!completed)
+    // }
+
+    // const deleteTodo = () => {
+    //     setTodos(todos.filter((todo, index) => index !== todos.indexOf(todo)))
+    // }
+
 
     useEffect(() => {
 
@@ -43,7 +48,7 @@ const Todolist = () => {
               <Link to={`/details/${todo.id}`}>
                 <span className='flex items-center'>
                   {todo.todo} {/* Access the todo text */}
-                  <Check className='ml-auto mr-2' strokeWidth={1.5} size={24} onClick={handleComplete} />
+                  <Check className='ml-auto mr-2' strokeWidth={1.5} size={24} />
                   <Trash2 className='mr-5' strokeWidth={1.5} />
                 </span>
               </Link>
