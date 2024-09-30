@@ -7,7 +7,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<TodoPage />} />
-        <Route path="/details" element={<Details/>} />
+        <Route path="/details/:id" element={<Details/>} />
       </Routes>
     </BrowserRouter>
   )
