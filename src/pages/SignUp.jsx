@@ -9,6 +9,7 @@ const SignUp = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [emailError, setemailError] = useState(false);
+  const [pwdError, setPwdError] = useState(false);
   const navigate = useNavigate();
 
   function validateEmail(email) {
@@ -43,11 +44,12 @@ const SignUp = () => {
 
 
     if (!confirmPasswordMatch(password, confirmPassword)) {
-      alert("Passwords do not match");
+      setPwdError(true);
       return;
     } else {
 
       setLoading(true)
+      setPwdError(false);
       try {
         const response = await fetch(
           "https://user-auth-server.onrender.com/api/v1/user/signup",
@@ -90,7 +92,7 @@ const SignUp = () => {
     <div className="flex justify-center mt-48  text-sm">
       <form
         onSubmit={handleSubmit}
-        className="w-[300px] shadow-xl shadow- rounded-xl px-8 py-7 space-y-4 hover:scale-110 transform transition duration-300 hover:shadow-xl"
+        className="w-[300px] shadow-xl rounded-xl px-8 py-7 space-y-4 hover:scale-110 transform transition duration-300 hover:shadow-xl"
       >
         <h1 className=" flex justify-center font-bold text-xl mb-2">Sign Up</h1>
         <p>
@@ -121,10 +123,10 @@ const SignUp = () => {
             placeholder="Email"
           />
           {emailError && (
-            <h3 className="text-red-500 text-xs mt-1 bg-red-300">Invalid Email</h3>
+            <h3 className="text-red-500 text-xs mt-1 py-1 rounded-xl bg-red pl-3">Invalid Email</h3>
           )}
         </p>
-        </p>0
+        </p>
         
 
         <p>
@@ -145,6 +147,9 @@ const SignUp = () => {
             className=" pl-1 border-b-2 outline-none focus:border-pink w-full py-1"
             placeholder="Confirm Password"
           />
+          {pwdError && (
+            <h3 className="text-red-500 text-xs mt-1 py-1 rounded-xl bg-red pl-3">Passwords do not match</h3>
+          )}
         </p>
 
         <p className="text-center text-orange-300">

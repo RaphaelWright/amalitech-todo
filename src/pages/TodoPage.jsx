@@ -45,14 +45,15 @@ const TodoPage = () => {
         } else {
             console.log("Token is valid, setting loading to false.");
             setLoading(false);
+            console.log("Loading:", loading);
         }
     }, []); 
     
 
   return (
-    <div className="bg-background ">
+    <div className=" ">
         <div className="shadow">
-        <h1 className=" flex text-4xl font-medium text-fonts py-4 ml-8">Todo List</h1>
+        <h1 className=" flex text-4xl font-medium py-4 ml-8">Todo List</h1>
         </div>
         <br></br>
         <Todolist  />

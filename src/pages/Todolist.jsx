@@ -36,7 +36,7 @@ const Todolist = () => {
   return (
     <div className='flex items-center justify-center'>
       <div>
-        <h1 className='text-3xl text-fonts font-medium text-center mb-4'>Your Todos</h1>
+        <h1 className='text-3xl font-medium text-center mb-4'>Your Todos</h1>
         <ul>
           {todos.map(todo => (
             <li
