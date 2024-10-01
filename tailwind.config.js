@@ -10,7 +10,9 @@ export default {
       background : '#3c3c3c',
       fonts: '#ffecc8',
       peach: '#ffd09b',
-      pink: '#ffb0b0'
+      pink: '#ffb0b0',
+      red: '#ff6666',
+
     },
     extend: {},
   },
