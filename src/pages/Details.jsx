@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import TopBar from "../components/TopBar";
 
 const Details = () => {
   const { id } = useParams();
@@ -17,6 +18,8 @@ const Details = () => {
   }, [id]);
 
   return (
+    <div>
+      <TopBar />
     <div
       style={{
         backgroundColor: "#3c3c3c",
@@ -48,6 +51,7 @@ const Details = () => {
           {details.completed ? "Yes" : "No"}
         </span>
       </p>
+    </div>
     </div>
   );
 };

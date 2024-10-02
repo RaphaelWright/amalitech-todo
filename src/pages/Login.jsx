@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { Eye, EyeOff } from "lucide-react";
+import TopBar from "../components/TopBar";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -8,6 +9,8 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [emailError, setEmailError] = useState(false);
   const [loginError, setLoginError] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
   const navigate = useNavigate();
 
   const logout = () => {
@@ -29,8 +32,6 @@ const Login = () => {
       const currentDate = Date.now();
       const expiryTime = decodedPayload.exp * 1000; // Convert to ms
 
-      console.log("Current date: " + currentDate, "Expiry: " + expiryTime);
-
       return currentDate >= expiryTime; // Return true if token is expired
     } catch (error) {
       console.error("Error decoding token:", error);
@@ -40,17 +41,28 @@ const Login = () => {
 
   const validateEmail = (email) => {
     const re = /\S+@\S+\.\S+/;
-    return re.test(email);
+    return re.test(email) && !/^\s*$/.test(email); // Check for spaces only
+  };
+
+  const validatePassword = (password) => {
+    return password.length >= 6 && !/^\s*$/.test(password); // Check password length and for spaces only
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!validateEmail(email)) {
       setEmailError(true);
       return;
     }
     setEmailError(false);
+
+    if (!validatePassword(password)) {
+      setLoginError(true);
+      return;
+    }
     setLoginError(false);
+
     setLoading(true);
 
     try {
@@ -78,20 +90,23 @@ const Login = () => {
     }
   };
 
-  // Use useEffect outside the handleSubmit to check for token on component mount
   useEffect(() => {
     const token = localStorage.getItem("token");
-    console.log("Token found:", token);
 
     if (!token || getTokenExpiration(token)) {
-      console.log("No token or token expired, logging out...");
       logout();
     } else {
       navigate("/todo");
     }
   }, [navigate]);
 
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
+    <div className="">
+      <TopBar />
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <form
         onSubmit={handleSubmit}
@@ -114,14 +129,20 @@ const Login = () => {
           )}
         </div>
 
-        <div className="space-y-1">
+        <div className="relative space-y-1">
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="pl-1 border-b-2 outline-none focus:border-pink w-full py-1"
             placeholder="Password"
           />
+          <span
+            onClick={toggleShowPassword}
+            className="absolute right-2 top-2 cursor-pointer"
+          >
+            {showPassword ? <EyeOff size={20} strokeWidth={1.5} /> : <Eye size={20} strokeWidth={1.5} />}
+          </span>
         </div>
 
         {loginError && (
@@ -138,6 +159,7 @@ const Login = () => {
           {loading ? "Signing In..." : "Sign In"}
         </button>
       </form>
+    </div>
     </div>
   );
 };

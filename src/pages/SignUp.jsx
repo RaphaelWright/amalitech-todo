@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
+import TopBar from "../components/TopBar";
 
 const SignUp = () => {
   const [firstName, setFirstName] = useState("");
@@ -7,10 +9,39 @@ const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [emailError, setemailError] = useState(false);
+  const [emailError, setEmailError] = useState(false);
   const [pwdError, setPwdError] = useState(false);
+  const [nameError, setNameError] = useState(false);
   const navigate = useNavigate();
+  
+
+  const signout = () => {
+    localStorage.removeItem("token");
+    navigate("/");
+  }
+
+  const getTokenExpiration = (token) => {
+    if (!token) {
+      return true;
+    }
+
+    try {
+      const decodedPayload = JSON.parse(atob(token.split(".")[1]));
+      if (!decodedPayload.exp) {
+        return true;
+      }
+
+      const currentDate = Date.now();
+      const expiryTime = decodedPayload.exp * 1000; // Convert to ms
+
+      return currentDate >= expiryTime; // Return true if token is expired
+    } catch (error) {
+      console.error("Error decoding token:", error);
+      return true; // If there's an error, treat the token as expired
+    }
+  };
 
   function validateEmail(email) {
     const re = /\S+@\S+\.\S+/;
@@ -22,6 +53,11 @@ const SignUp = () => {
       alert("Password must be at least 6 characters long");
     }
     return password === confirmPassword;
+  }
+
+  function validateNames(firstName, lastName) {
+    const re = /^\S.*$/;
+    return re.test(firstName) && re.test(lastName);
   }
 
   function resetForm() {
@@ -36,20 +72,25 @@ const SignUp = () => {
     e.preventDefault();
 
     if (!validateEmail(email)) {
-      setemailError(true);
+      setEmailError(true);
       return;
     } else {
-      setemailError(false);
+      setEmailError(false);
     }
 
+    if (!validateNames(firstName, lastName)) {
+      setNameError(true);
+      return;
+    } else {
+      setNameError(false);
+    }
 
     if (!confirmPasswordMatch(password, confirmPassword)) {
       setPwdError(true);
       return;
     } else {
-
-      setLoading(true)
       setPwdError(false);
+      setLoading(true);
       try {
         const response = await fetch(
           "https://user-auth-server.onrender.com/api/v1/user/signup",
@@ -58,7 +99,6 @@ const SignUp = () => {
             headers: {
               "Content-Type": "application/json",
             },
-
             body: JSON.stringify({ firstName, lastName, email, password }),
           }
         );
@@ -67,40 +107,50 @@ const SignUp = () => {
 
         if (!response.ok) {
           throw new Error(data.message || "Signup Failed");
-        } 
+        }
 
-        navigate('/login')
-
-        
+        navigate("/login");
       } catch (err) {
         console.log(err || "Signup was not successful");
       } finally {
         resetForm();
         setLoading(false);
       }
-
-      
     }
   };
 
-  useEffect(
-    () => resetForm()
-    ,[])
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token || getTokenExpiration(token)) {
+      signout();
+    } else {
+      navigate("/todo");
+    }
+  }, [navigate]);
+
+  useEffect(() => resetForm(), []);
+  
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
 
   return (
     <div className="">
-    <div className="flex justify-center mt-48  text-sm">
+      <TopBar clicked="true"/>
+    <div className="flex justify-center mt-48 text-sm">
       <form
         onSubmit={handleSubmit}
         className="w-[300px] shadow-xl rounded-xl px-8 py-7 space-y-4 hover:scale-110 transform transition duration-300 hover:shadow-xl"
       >
-        <h1 className=" flex justify-center font-bold text-xl mb-2">Sign Up</h1>
+        <h1 className="flex justify-center font-bold text-xl mb-2">Sign Up</h1>
+
         <p>
           <input
             type="text"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
-            className=" pl-1 border-b-2 outline-none focus:border-pink w-full py-1"
+            className="pl-1 border-b-2 outline-none focus:border-pink w-full py-1"
             placeholder="First Name"
           />
         </p>
@@ -110,47 +160,61 @@ const SignUp = () => {
             type="text"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
-            className=" pl-1 border-b-2 outline-none focus:border-pink w-full py-1"
+            className="pl-1 border-b-2 outline-none focus:border-pink w-full py-1"
             placeholder="Last Name"
           />
-          <br></br>
+        </p>
+        {nameError && (
+          <h3 className="text-red-500 text-xs mt-1 py-1 rounded-xl bg-red pl-3">
+            First and last names cannot be empty or just spaces.
+          </h3>
+        )}
+
         <p>
           <input
             type="text"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className=" pl-1 border-b-2 mt-4 outline-none focus:border-pink py-1 w-full"
+            className="pl-1 border-b-2 outline-none focus:border-pink w-full py-1"
             placeholder="Email"
           />
           {emailError && (
-            <h3 className="text-red-500 text-xs mt-1 py-1 rounded-xl bg-red pl-3">Invalid Email</h3>
+            <h3 className="text-red-500 text-xs mt-1 py-1 rounded-xl bg-red pl-3">
+              Invalid Email
+            </h3>
           )}
         </p>
-        </p>
-        
 
-        <p>
+        <div className="relative">
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="pl-1 border-b-2 outline-none focus:border-pink py-1 w-full"
+            className="pl-1 border-b-2 outline-none focus:border-pink w-full py-1"
             placeholder="Password"
           />
-        </p>
+          <span
+            onClick={toggleShowPassword}
+            className="absolute right-2 top-2 cursor-pointer"
+          >
+            {showPassword ? <EyeOff size={20} strokeWidth={1.5} /> : <Eye size={20} strokeWidth={1.5} />}
+          </span>
+        </div>
 
-        <p>
+        <div className="relative">
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className=" pl-1 border-b-2 outline-none focus:border-pink w-full py-1"
+            className="pl-1 border-b-2 outline-none focus:border-pink w-full py-1"
             placeholder="Confirm Password"
           />
-          {pwdError && (
-            <h3 className="text-red-500 text-xs mt-1 py-1 rounded-xl bg-red pl-3">Passwords do not match</h3>
-          )}
-        </p>
+        </div>
+        {pwdError && (
+          <h3 className="text-red-500 text-xs mt-1 py-1 rounded-xl bg-red pl-3">
+            Passwords do not match
+          </h3>
+        )}
 
         <p className="text-center text-orange-300">
           Already have an account?{" "}

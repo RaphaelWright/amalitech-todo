@@ -1,15 +1,19 @@
 import Todolist from "./Todolist"
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import TopBar from "../components/TopBar";
 
 const TodoPage = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
 
-    const logout = () => {
+
+    const signout = () => {
         localStorage.removeItem("token");
-        navigate("/login");
-    };
+        navigate("/");
+    }
+
+    
 
     // Function to get token expiration
     const getTokenExpiration = (token) => {
@@ -41,7 +45,7 @@ const TodoPage = () => {
     
         if (!token || getTokenExpiration(token)) {
             console.log("No token or token expired, logging out...");
-            logout();
+            signout();
         } else {
             console.log("Token is valid, setting loading to false.");
             setLoading(false);
@@ -52,9 +56,7 @@ const TodoPage = () => {
 
   return (
     <div className=" ">
-        <div className="shadow">
-        <h1 className=" flex text-4xl font-medium py-4 ml-8">Todo List</h1>
-        </div>
+        <TopBar />
         <br></br>
         <Todolist  />
     </div>
