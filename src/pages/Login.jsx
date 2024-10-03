@@ -2,8 +2,12 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import TopBar from "../components/TopBar";
+import useToken from "../hooks/useToken";
 
 const Login = () => {
+
+  const { token, setToken, isTokenExpired } = useToken();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -16,27 +20,6 @@ const Login = () => {
   const logout = () => {
     localStorage.removeItem("token");
     navigate("/login");
-  };
-
-  const getTokenExpiration = (token) => {
-    if (!token) {
-      return true;
-    }
-
-    try {
-      const decodedPayload = JSON.parse(atob(token.split(".")[1]));
-      if (!decodedPayload.exp) {
-        return true;
-      }
-
-      const currentDate = Date.now();
-      const expiryTime = decodedPayload.exp * 1000; // Convert to ms
-
-      return currentDate >= expiryTime; // Return true if token is expired
-    } catch (error) {
-      console.error("Error decoding token:", error);
-      return true; // If there's an error, treat the token as expired
-    }
   };
 
   const validateEmail = (email) => {
@@ -81,6 +64,8 @@ const Login = () => {
         throw new Error(data.message || "Login Failed");
       }
       localStorage.setItem("token", data.token);
+      setToken(data.token)
+      
       navigate("/todo");
     } catch (err) {
       console.error(err.message || "Login was not successful");
@@ -93,7 +78,7 @@ const Login = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-    if (!token || getTokenExpiration(token)) {
+    if (!token || isTokenExpired) {
       logout();
     } else {
       navigate("/todo");

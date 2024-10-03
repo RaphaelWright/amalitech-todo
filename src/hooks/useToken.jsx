@@ -3,7 +3,7 @@ import { useState } from "react";
 
 const useToken = () => {
     
-    const [token, setToken] = useState(null)
+    const [token, setToken] = useState()
 
     const getTokenExpiration = (token) => {
 

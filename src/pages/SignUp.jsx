@@ -6,7 +6,7 @@ import TopBar from "../components/TopBar";
 import useToken from "../hooks/useToken";
 
 const SignUp = () => {
-  const [token, setToken, isTokenExpired] = useToken();
+  const {token, setToken, isTokenExpired} = useToken();
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -25,7 +25,6 @@ const SignUp = () => {
     localStorage.removeItem("token");
     navigate("/");
   }
-
 
 
   function validateEmail(email) {
@@ -105,10 +104,13 @@ const SignUp = () => {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const localtoken = localStorage.getItem("token");
+    console.log(`this is the token ${localtoken} `)
+    setToken(localtoken)
 
-    if (!token || isTokenExpired) {
+    if (!localtoken || isTokenExpired) {
       signout();
+      console.log("I AM SIGNING OUT")
     } else {
       navigate("/todo");
     }
