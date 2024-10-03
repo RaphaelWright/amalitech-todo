@@ -1,9 +1,13 @@
+/* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import TopBar from "../components/TopBar";
+import useToken from "../hooks/useToken";
 
 const SignUp = () => {
+  const [token, setToken, isTokenExpired] = useToken();
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -22,26 +26,7 @@ const SignUp = () => {
     navigate("/");
   }
 
-  const getTokenExpiration = (token) => {
-    if (!token) {
-      return true;
-    }
 
-    try {
-      const decodedPayload = JSON.parse(atob(token.split(".")[1]));
-      if (!decodedPayload.exp) {
-        return true;
-      }
-
-      const currentDate = Date.now();
-      const expiryTime = decodedPayload.exp * 1000; // Convert to ms
-
-      return currentDate >= expiryTime; // Return true if token is expired
-    } catch (error) {
-      console.error("Error decoding token:", error);
-      return true; // If there's an error, treat the token as expired
-    }
-  };
 
   function validateEmail(email) {
     const re = /\S+@\S+\.\S+/;
@@ -122,7 +107,7 @@ const SignUp = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-    if (!token || getTokenExpiration(token)) {
+    if (!token || isTokenExpired) {
       signout();
     } else {
       navigate("/todo");
